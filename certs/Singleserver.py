@@ -12,8 +12,5 @@ print()
 print(f'Server IP: {server_ip}')
 print()
 
-myCmd= f'{lsquic_dir}/build/bin/./http_server -c www.example.com,{lsquic_dir}/certs/Dilithium2/key_crt.pem,{lsquic_dir}/certs/Dilithium2/key_srv.pem -s {server_ip}:4433 -p /'
-os.system(myCmd)
-myCmd= f'{lsquic_dir}/build/bin/./http_server -c www.example.com,{lsquic_dir}/certs/Dilithium3/key_crt.pem,{lsquic_dir}/certs/Dilithium3/key_srv.pem -s {server_ip}:4433 -p /'
-print ("line 16 is executed")
+myCmd= f'{lsquic_dir}/build/bin/./http_server -c www.example.com,{lsquic_dir}/certs/new_certs/dilithium5/key_crt.pem,{lsquic_dir}/certs/new_certs/dilithium5/key_srv.pem -s {server_ip}:4433 -p /'
 os.system(myCmd)

@@ -25,7 +25,7 @@ cd liboqs
 rm -rf build
 mkdir build && cd build
 
-cmake -G"Ninja" -DCMAKE_INSTALL_PREFIX=$BORINGSSL_DIR/oqs -DOQS_USE_OPENSSL=OFF ..
+cmake -GNinja -DCMAKE_INSTALL_PREFIX=$BORINGSSL_DIR/oqs -DOQS_USE_OPENSSL=OFF ..
 
 ninja
 sudo ninja install

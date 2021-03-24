@@ -16,5 +16,5 @@ def pause_until_next_minute():
 	print('Starting...')
 
 pause_until_next_minute()
-terminal('sudo tcpdump -i any -w Logs/WIRESHARK_LOG.pcap \'port 4433\'')
+terminal('sudo tcpdump -i any -w newLogs/WIRESHARK_dilithium5-aes_0RTT.pcap \'port 4433\'')
 #terminal('tshark -i any -d tcp.port==4433,http -w Logs/WIRESHARK_LOG')

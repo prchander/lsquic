@@ -14,7 +14,7 @@ serverIP = input('Please enter the server IP: ')
 
 myCmd = f'{lsquic_dir}/build/bin/./http_client -0 0rttTest.txt -H www.example.com -s {serverIP}:4433 -p /'
 
-n = 1
+n = 1000
 
 while n>0:
     os.system(myCmd)

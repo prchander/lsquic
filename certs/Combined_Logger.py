@@ -62,7 +62,7 @@ def run(file):
 
 pause_until_next_minute()
 
-fileName = 'Logs/LOGGED_CPU_OPENSSL.csv'
+fileName = 'newLogs/LOGGED_CPU_Dilithium5-aes_0RTT.csv'
 file = open(fileName, 'w+')
 file.write(header() + '\n')
 

@@ -47,6 +47,10 @@ def selectFile(regex, subdirs = False):
 	print()
 	return selection
 
+# List the files with a regular expression
+def listFiles(regex, directory = ''):
+	path = os.path.join(os.curdir, directory)
+	return [os.path.join(path, file) for file in os.listdir(path) if os.path.isfile(os.path.join(path, file)) and bool(re.match(regex, file))]
 
 def header():
 	line = 'Timestamp,'
@@ -71,7 +75,7 @@ def log(packet, file):
 	global connectionCount
 
 	packetNum = int(packet.number)
-	if packetNum % 100 == 0:
+	if packetNum % 1000 == 0:
 		print(f'Processing packet {packetNum}')
 
 	successfulConnectionNum = ''
@@ -110,41 +114,55 @@ def log(packet, file):
 	
 	file.write(line + '\n')
 
+pcapFiles = listFiles(r'.*\.pcap')
 
-pcapName = selectFile(r'.*\.pcap', False)
-if pcapName == '':
-	sys.exit()
-fileName = pcapName[:-5] + '_parsed.csv'
+for pcapName in pcapFiles:
+	#pcapName = selectFile(r'.*\.pcap', False)
+	#if pcapName == '':
+	#	sys.exit()
 
-file = open(fileName, 'w+')
-file.write(header() + '\n')
+	print('\n\nOPENING', pcapName)
+	directory = 'packetLevel'
+	fileName = os.path.join(directory, pcapName[:-5] + '_parsed.csv')
 
-pcap = pyshark.FileCapture(pcapName)
+	outputFile = open(fileName, 'w', newline='')
 
-running = True
-count = 0
-connectionCount = 0
-while running:
-	try:
-		packet = pcap[count]
-		if packet.highest_layer == 'TCP':
-			# Look for the experiment sample delimeter
-			if packet.layers[-1].flags == '0x00000014': # ACK RST
-				connectionCount += 1
-		else:
-			log(packet, file)
+	file = open(fileName, 'w+')
+	file.write(header() + '\n')
 
-	except (StopIteration, KeyError): # End of file
-		running = False
-		break
-	except: # Corrupt packet? Skip
-		print('ERROR OCCURED, SKIPPING')
+	pcap = pyshark.FileCapture(pcapName)
+
+	running = True
+	count = 0
+	connectionCount = 0
+	while running:
+		try:
+			packet = pcap[count]
+			if packet.highest_layer == 'TCP':
+				# Look for the experiment sample delimeter
+				if packet.layers[-1].flags == '0x00000014': # ACK RST
+					connectionCount += 1
+			else:
+				log(packet, file)
+
+		except (StopIteration, KeyError): # End of file
+			running = False
+			break
+		except: # Corrupt packet? Skip
+			print('ERROR OCCURED, SKIPPING')
+			count += 1
+			continue
 		count += 1
-		continue
-	count += 1
 
-print()
-print(f'Saved to "{fileName}".')
+	print()
+	print(f'Saved to "{fileName}".')
+
+	file.close()
+
+print('\n\nProcessed files:', pcapFiles.join('\n'))
+print('Goodbye.')
+sys.exit()
+
 # import pyshark
 
 # pcap_data = pyshark.FileCapture('WIRESHARK_LOG.pcap')

@@ -54,6 +54,41 @@ def listFiles(regex, directory = ''):
 	path = os.path.join(os.curdir, directory)
 	return [os.path.join(path, file) for file in os.listdir(path) if os.path.isfile(os.path.join(path, file)) and bool(re.match(regex, file))]
 
+# Change the color of text in the terminal
+# Leaving the forground or background blank will reset the color to its default
+# Providing a message will return the colored message (reset to default afterwards)
+# If it's not working for you, be sure to call os.system('cls') before modifying colors
+# Usage:
+# - print(color('black', 'white', 'Inverted') + ' Regular')
+# - print(color('black', 'white') + 'Inverted' + color() + ' Regular')
+def color(foreground = '', background = '', message = ''):
+	fg = {
+		'red': '1;31',
+		'green': '1;32',
+		'yellow': '1;33',
+		'blue': '1;34',
+		'purple': '1;35',
+		'cyan': '1;36',
+		'white': '1;37',
+		'black': '0;30',
+		'gray': '1;30'
+	}
+	bg = {
+		'red': ';41m',
+		'green': ';42m',
+		'yellow': ';43m',
+		'blue': ';44m',
+		'purple': ';45m',
+		'cyan': ';46m',
+		'white': ';47m',
+		'black': ';48m'
+	}
+	if foreground not in fg or background not in bg: return '\033[0m' # Reset
+	color = f'\033[0m\033[{ fg[foreground.lower()] }{ bg[background.lower()] }'
+
+	if message == '': return color
+	else: return f'{ color }{ str(message) }\033[0m'
+
 def header():
 	line = 'Start timestamp (s),'
 	line += 'End timestamp (s),'
@@ -132,14 +167,15 @@ for inputFileName in csvFiles:
 			samples -=1
 	# Used to track the Wireshark connection counter, and compare it to the experimental_setup_droprate
 	#timeline_of_samples = [] # "At this experiment height, wireshark is at connection N"
-	successful_connection_max_value = 0
+	successful_connection_max_value = -1
 	droprate_at_successful_connection = []
-
+	num_skipped_overlapping_packets = 0
 
 	for packet in reader:
 		if packet[4] == '': continue
 		#prev_sample_num = sample_num
 		sample_num = int(packet[3])
+
 		num_successful_connections = int(packet[4])
 
 		# Keep track of the maximum
@@ -149,12 +185,13 @@ for inputFileName in csvFiles:
 
 			successful_connection_max_value = num_successful_connections
 			if sample_num >= len(experimental_setup_droprate):
-				# If for some reason there are more samples, assume it is part of the last sample
+				# If for some reason there are more samples (overfilled), assume it is part of the last accepted sample
 				current_droprate_at_this_time = experimental_setup_droprate[-1]
 			else:
-				current_droprate_at_this_time = experimental_setup_droprate[sample_num]
-			# Keep the droprate_at_successful_connection up to date
-			while len(droprate_at_successful_connection) < num_successful_connections:
+				#current_droprate_at_this_time = experimental_setup_droprate[sample_num]
+				current_droprate_at_this_time = experimental_setup_droprate[num_successful_connections]
+			# Keep the droprate_at_successful_connection array size up to date
+			while len(droprate_at_successful_connection) <= num_successful_connections:
 				droprate_at_successful_connection.append(current_droprate_at_this_time)
 
 
@@ -168,6 +205,13 @@ for inputFileName in csvFiles:
 			handshake_long_headers_bytes[num_successful_connections] = 0
 			handshake_short_headers_bytes[num_successful_connections] = 0
 			time_start[num_successful_connections] = float(packet[1])
+
+
+		# If we find a packet from the previous experiment, skip
+		if len(droprate_at_successful_connection) > num_successful_connections and droprate_at_successful_connection[num_successful_connections] < current_droprate_at_this_time:
+			num_skipped_overlapping_packets += 1
+			continue
+
 
 		time_end[num_successful_connections] = float(packet[1])
 
@@ -205,6 +249,10 @@ for inputFileName in csvFiles:
 			print(f'Handshake {i} does not exist!')
 			continue
 
+	if num_skipped_overlapping_packets != 0:
+		print(color('red', 'black', '!' * 100))
+		print('Number of skipped overlapping packets across experiments:', num_skipped_overlapping_packets)
+		print(color('red', 'black', '!' * 100))
 	#readerFile.seek(0) # Reset it back to the beginning
 	# for packet in reader:
 	# 	timestamp = packet[0]

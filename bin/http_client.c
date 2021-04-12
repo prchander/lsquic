@@ -1123,6 +1123,7 @@ init_x509_cert_store (const char *path)
 static int
 verify_server_cert (void *ctx, STACK_OF(X509) *chain)
 {
+    LSQ_WARN("!!! Cybersecurity Lab: VERIFY CALLED");
     X509_STORE_CTX store_ctx;
     X509 *cert;
     int ver;

@@ -1,0 +1,33 @@
+Determining if the IP_DONTFRAG exist failed with the following output:
+Change Dir: /home/pi/oqs/lsquic/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/ninja" "cmTC_0c11b"
+[1/2] Building C object CMakeFiles/cmTC_0c11b.dir/CheckSymbolExists.c.o
+FAILED: CMakeFiles/cmTC_0c11b.dir/CheckSymbolExists.c.o 
+/usr/bin/cc   -DLSQUIC_DEBUG_NEXT_ADV_TICK=1 -DLSQUIC_CONN_STATS=1 -Wall -Wextra -Wno-unused-parameter -fno-omit-frame-pointer -Wno-missing-field-initializers -O0 -g3 -o CMakeFiles/cmTC_0c11b.dir/CheckSymbolExists.c.o   -c CheckSymbolExists.c
+CheckSymbolExists.c: In function ‘main’:
+CheckSymbolExists.c:8:19: error: ‘IP_DONTFRAG’ undeclared (first use in this function); did you mean ‘IPV6_DONTFRAG’?
+   return ((int*)(&IP_DONTFRAG))[argc];
+                   ^~~~~~~~~~~
+                   IPV6_DONTFRAG
+CheckSymbolExists.c:8:19: note: each undeclared identifier is reported only once for each function it appears in
+CheckSymbolExists.c:4:14: warning: parameter ‘argc’ set but not used [-Wunused-but-set-parameter]
+ int main(int argc, char** argv)
+              ^~~~
+ninja: build stopped: subcommand failed.
+
+File /home/pi/oqs/lsquic/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <netinet/in.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef IP_DONTFRAG
+  return ((int*)(&IP_DONTFRAG))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+

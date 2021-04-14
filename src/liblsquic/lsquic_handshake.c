@@ -120,6 +120,7 @@ enum enc_sess_history_event
     ESHE_SNO_OK             =  'f',
     ESHE_MULTI2_2BITS       =  'i',
     ESHE_SNI_DELAYED        =  'Y',
+    ESHE_XLCT_MISMATCH      =  'x',
 };
 #endif
 
@@ -132,6 +133,7 @@ typedef struct hs_ctx_st
         HSET_SCID     =   (1 << 2),
         HSET_IRTT     =   (1 << 3),
         HSET_SRST     =   (1 << 4),
+        HSET_XLCT     =   (1 << 5),     /* xlct is set */
     }           set;
     enum {
         HOPT_NSTP     =   (1 << 0),     /* NSTP option present in COPT */
@@ -155,6 +157,7 @@ typedef struct hs_ctx_st
     uint32_t    tcid;
     uint32_t    smhl;
     uint64_t    sttl;
+    uint64_t    xlct;
     unsigned char scid[SCID_LENGTH];
     //unsigned char chlo_hash[32]; //SHA256 HASH of CHLO
     unsigned char nonc[DNONC_LENGTH]; /* 4 tm, 8 orbit ---> REJ, 20 rand */
@@ -281,6 +284,7 @@ struct lsquic_enc_session
     SSL_CTX *  ssl_ctx;
     struct lsquic_engine_public *enpub;
     struct lsquic_str * cert_ptr; /* pointer to the leaf cert of the server, not real copy */
+    uint64_t            cert_hash;
     struct lsquic_str   chlo; /* real copy of CHLO message */
     struct lsquic_str   sstk;
     struct lsquic_str   ssno;
@@ -308,6 +312,7 @@ typedef struct compress_cert_hash_item_st
 typedef struct cert_item_st
 {
     struct lsquic_str*      crt;
+    uint64_t                hash;   /* Hash of `crt' */
     struct lsquic_hash_elem hash_el;
     unsigned char           key[0];
 } cert_item_t;
@@ -533,6 +538,8 @@ insert_cert (struct lsquic_engine_public *enpub, const unsigned char *key,
 
     item->crt = crt_copy;
     memcpy(item->key, key, key_sz);
+    item->hash = lsquic_fnv1a_64((const uint8_t *)lsquic_str_buf(crt),
+                                                        lsquic_str_len(crt));
     el = lsquic_hash_insert(enpub->enp_server_certs, item->key, key_sz,
                                                         item, &item->hash_el);
     if (el)
@@ -1143,15 +1150,15 @@ static int parse_hs_data (struct lsquic_enc_session *enc_session, uint32_t tag,
         break;
 
     case QTAG_SCID:
-        if (len != SCID_LENGTH)
+        if (len < SCID_LENGTH)
             return -1;
         if (is_client)
         {
-            memcpy(enc_session->info->sscid, val, len);
+            memcpy(enc_session->info->sscid, val, SCID_LENGTH);
         }
         else
         {
-            memcpy(hs_ctx->scid, val, len);
+            memcpy(hs_ctx->scid, val, SCID_LENGTH);
             hs_ctx->set |= HSET_SCID;
         }
         ESHIST_APPEND(enc_session, ESHE_SET_SCID);
@@ -1262,6 +1269,17 @@ static int parse_hs_data (struct lsquic_enc_session *enc_session, uint32_t tag,
         memcpy(hs_ctx->srst, val, len);
         hs_ctx->set |= HSET_SRST;
         ESHIST_APPEND(enc_session, ESHE_SET_SRST);
+        break;
+
+    case QTAG_XLCT:
+        if (len != sizeof(hs_ctx->xlct))
+        {
+            LSQ_INFO("Unexpected size of XLCT: %u instead of %zu bytes",
+                len, sizeof(hs_ctx->xlct));
+            return -1;
+        }
+        hs_ctx->set |= HSET_XLCT;
+        hs_ctx->xlct = get_tag_value_i64(val, len);
         break;
 
     default:
@@ -1692,6 +1710,17 @@ determine_rtts (struct lsquic_enc_session *enc_session,
         hs_ctx->rrej = HFR_CONFIG_INCHOATE_HELLO;
         ESHIST_APPEND(enc_session, ESHE_EMPTY_CCRT);
         goto fail_1rtt;
+    }
+
+    if (hs_ctx->set & HSET_XLCT)
+    {
+        if (enc_session->cert_hash != hs_ctx->xlct)
+        {
+            /* The expected leaf certificate hash could not be validated. */
+            hs_ctx->rrej = HFR_INVALID_EXPECTED_LEAF_CERTIFICATE;
+            ESHIST_APPEND(enc_session, ESHE_XLCT_MISMATCH);
+            goto fail_1rtt;
+        }
     }
 
     if (lsquic_str_len(&enc_session->ssno) > 0)
@@ -2276,6 +2305,7 @@ get_sni_SSL_CTX(struct lsquic_enc_session *enc_session, lsquic_lookup_cert_f cb,
                 }
             }
             enc_session->cert_ptr = item->crt;
+            enc_session->cert_hash = item->hash;
         }
         else
         {
@@ -2289,6 +2319,9 @@ get_sni_SSL_CTX(struct lsquic_enc_session *enc_session, lsquic_lookup_cert_f cb,
             if (!enc_session->cert_ptr)
                 return GET_SNI_ERR;
             enc_session->es_flags |= ES_FREE_CERT_PTR;
+            enc_session->cert_hash = lsquic_fnv1a_64(
+                (const uint8_t *) lsquic_str_buf(enc_session->cert_ptr),
+                lsquic_str_len(enc_session->cert_ptr));
         }
     }
     return GET_SNI_OK;
@@ -2333,9 +2366,6 @@ handle_chlo_frames_data(const uint8_t *data, int len,
     }
 
 
-    rtt = determine_rtts(enc_session, ip, t);
-    ESHIST_APPEND(enc_session, ESHE_MULTI2_2BITS + rtt);
-    lsquic_str_setto(&enc_session->chlo, (const char *)data, len);
     switch (get_sni_SSL_CTX(enc_session, cb, cb_ctx, local))
     {
     case GET_SNI_ERR:
@@ -2346,6 +2376,9 @@ handle_chlo_frames_data(const uint8_t *data, int len,
         break;
     }
 
+    rtt = determine_rtts(enc_session, ip, t);
+    ESHIST_APPEND(enc_session, ESHE_MULTI2_2BITS + rtt);
+    lsquic_str_setto(&enc_session->chlo, (const char *)data, len);
 
     LSQ_DEBUG("handle_chlo_frames_data return %d.", rtt);
     return rtt;

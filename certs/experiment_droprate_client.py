@@ -127,10 +127,15 @@ else:
 
 
 
-algorithms = ['rsa', 'Dilithium2', 'Dilithium3', 'Dilithium4', 'Falcon512', 'Falcon1024', 'rsa3072_Dilithium2', 'rsa3072_Dilithium3', 'rsa3072_Falcon512', 'p256_Dilithium2', 'p256_Dilithium3', 'p256_Dilithium4', 'p256_Falcon512']
+algorithms = ['rsa', 'dilithium2', 'dilithium3', 'dilithium5', 'falcon512', 'falcon1024'] #, 'rsa3072_dilithium2', 'rsa3072_dilithium3', 'rsa3072_falcon512', 'p256_dilithium2', 'p256_dilithium3', 'p256_dilithium4', 'p256_falcon512']
 
 for algorithm in algorithms:
 	print(f'Using algorithm: "{algorithm}"')
+
+	clearFilters()
+	networkDelimeter(serverIP)
+	networkDelimeter(serverIP)
+	networkDelimeter(serverIP)
 	restartServerSSH(algorithm, serverIP)
 
 	for droprate in droprates:
@@ -145,10 +150,9 @@ for algorithm in algorithms:
 			os.system(myCmd)
 			samples -=1
 		print('Waiting 3 minutes before starting next droprate test...')
-		time.sleep(180)
-	time.sleep(180)
+		time.sleep(120)
+	time.sleep(120)
 
-	clearFilters()
 
 print()
 print('Experiment completed.')

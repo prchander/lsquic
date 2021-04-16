@@ -4,14 +4,14 @@ import os
 import sys
 import socket
 
-algorithm = 'Dilithium2'
-algorithms = ['rsa', 'Dilithium2', 'Dilithium3', 'Dilithium5', 'Falcon512', 'Falcon1024', 'rsa3072_Dilithium2', 'rsa3072_Dilithium3', 'rsa3072_Falcon512', 'p256_Dilithium2', 'p256_Dilithium3', 'p256_Dilithium4', 'p256_Falcon512']
+algorithm = 'dilithium2'
+algorithms = ['rsa', 'dilithium2', 'dilithium3', 'dilithium5', 'falcon512', 'falcon1024'] #, 'rsa3072_dilithium2', 'rsa3072_dilithium3', 'rsa3072_falcon512', 'p256_dilithium2', 'p256_dilithium3', 'p256_dilithium4', 'p256_falcon512']
 if len(sys.argv) > 1:
-	if sys.argv[1] in algorithms:
-		algorithm = sys.argv[1]
-	else:
-		print('ARGUMENT "' + sys.argv[1] + '" NOT VALID ALGORITHM')
-		sys.exit()
+	algorithm = sys.argv[1]
+	
+if algorithm not in algorithms:
+	print(f'ARGUMENT "{algorithm}" NOT VALID ALGORITHM')
+	sys.exit()
 
 print('Using algorithm: "' + algorithm + '"')
 
@@ -38,5 +38,6 @@ print()
 #	sys.exit()
 
 print('USING ALGORITHM: ' + algorithm)
-myCmd= f'{lsquic_dir}/build/bin/./http_server -c www.example.com,{lsquic_dir}/certs/{algorithm}/key_crt.pem,{lsquic_dir}/certs/Dilithium2/key_srv.pem -s {server_ip}:4433 -p /'
+myCmd= f'{lsquic_dir}/build/bin/./http_server -c www.example.com,{lsquic_dir}/certs/{algorithm}/key_crt.pem,{lsquic_dir}/certs/{algorithm}/key_srv.pem -s {server_ip}:4433 -p /'
+
 os.system(myCmd)

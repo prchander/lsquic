@@ -5,7 +5,7 @@ import sys
 import socket
 
 algorithm = 'Dilithium2'
-algorithms = ['rsa', 'Dilithium2', 'Dilithium3', 'Dilithium4', 'Falcon512', 'Falcon1024', 'rsa3072_Dilithium2', 'rsa3072_Dilithium3', 'rsa3072_Falcon512', 'p256_Dilithium2', 'p256_Dilithium3', 'p256_Dilithium4', 'p256_Falcon512']
+algorithms = ['rsa', 'Dilithium2', 'Dilithium3', 'Dilithium5', 'Falcon512', 'Falcon1024', 'rsa3072_Dilithium2', 'rsa3072_Dilithium3', 'rsa3072_Falcon512', 'p256_Dilithium2', 'p256_Dilithium3', 'p256_Dilithium4', 'p256_Falcon512']
 if len(sys.argv) > 1:
 	if sys.argv[1] in algorithms:
 		algorithm = sys.argv[1]

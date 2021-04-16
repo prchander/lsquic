@@ -54,10 +54,10 @@ def stopServerSSH(serverIP):
 		print('Stopping server...')
 		call_ssh(f'kill {pid}')
 
-def restartServerSSH(serverIP):
+def restartServerSSH(algorithm, serverIP):
 	stopServerSSH(serverIP)
 	print('Starting server...')
-	output = call_ssh('python3 ~/oqs/lsquic/certs/Singleserver.py </dev/null &>/dev/null &')
+	output = call_ssh(f'python3 ~/oqs/lsquic/certs/experiment_droprate_client.py {algorithm} </dev/null &>/dev/null &')
 	print()
 	print('Server started! Waiting 5 seconds...')
 	time.sleep(5)
@@ -127,27 +127,28 @@ else:
 
 
 
+algorithms = ['rsa', 'Dilithium2', 'Dilithium3', 'Dilithium4', 'Falcon512', 'Falcon1024', 'rsa3072_Dilithium2', 'rsa3072_Dilithium3', 'rsa3072_Falcon512', 'p256_Dilithium2', 'p256_Dilithium3', 'p256_Dilithium4', 'p256_Falcon512']
 
+for algorithm in algorithms:
+	print(f'Using algorithm: "{algorithm}"')
+	restartServerSSH(algorithm, serverIP)
 
-restartServerSSH(serverIP)
-#for algorithm in algorothms:
-# Need to find a way to select the algorithm in Singleserver.py
-for droprate in droprates:
-	print(f'Testing delay: {droprate}')
-	samples = numSamples
-	while samples > 0:
+	for droprate in droprates:
+		print(f'Testing delay: {droprate}')
+		samples = numSamples
+		while samples > 0:
 
-		clearFilters()
-		networkDelimeter(serverIP)
-		applyFilters(droprate)
+			clearFilters()
+			networkDelimeter(serverIP)
+			applyFilters(droprate)
 
-		os.system(myCmd)
-		samples -=1
-	print('Waiting 3 minutes before starting next droprate test...')
+			os.system(myCmd)
+			samples -=1
+		print('Waiting 3 minutes before starting next droprate test...')
+		time.sleep(180)
 	time.sleep(180)
 
-clearFilters()
-restartServerSSH()
+	clearFilters()
 
 print()
 print('Experiment completed.')

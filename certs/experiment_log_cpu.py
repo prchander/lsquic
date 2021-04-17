@@ -2,16 +2,21 @@ import datetime
 import os 
 import psutil
 import time
+import random
+import string
 
+def genNonce():
+	length = 10
+	return ''.join(random.choice(string.ascii_letters) for x in range(length))
 
 print('Starting Logger...')
 
-def pause_until_next_minute():
-	minute = datetime.datetime.now().minute
-	print(f'Waiting until minute: { minute + 1 }')
-	while minute == datetime.datetime.now().minute:
-		time.sleep(0.001)
-	print('Starting...')
+#def pause_until_next_minute():
+#	minute = datetime.datetime.now().minute
+#	print(f'Waiting until minute: { minute + 1 }')
+#	while minute == datetime.datetime.now().minute:
+#		time.sleep(0.001)
+#	print('Starting...')
 
 #openssl_dir = '/home/pi/openssl'
 openssl_dir = os.path.expanduser('~/openssl')
@@ -56,13 +61,13 @@ def run(file):
 			log(file)
 			if count % 1000 == 0:
 				print(f'Logged {count / 100} seconds')
-			time.sleep(0.1)
+			time.sleep(1)
 	except KeyboardInterrupt:
 		pass
 
-#pause_until_next_minute()
+nonce = genNonce()
 
-fileName = 'fullyAutomatedLogs/LOGGED_CPU_ALL.csv'
+fileName = f'fullyAutomatedLogs/LOGGED_CPU_ALL_{nonce}.csv'
 file = open(fileName, 'w+')
 file.write(header() + '\n')
 

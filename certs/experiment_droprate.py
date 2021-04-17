@@ -14,12 +14,14 @@ from getpass import getpass
 global ssh_obj
 global closingApplication
 
-numSamples = 1000
+numSamples = 100
 zeroRoundTrip = False
 droprates = [0, 10, 40]
 
 print('Number of samples', numSamples)
 
+if not os.path.exists('fullyAutomatedLogs'):
+	os.makedirs('fullyAutomatedLogs')
 
 # Send a command to the linux terminal
 def terminal(cmd):
@@ -115,7 +117,7 @@ def stopTcpdump():
 
 def startTcpdump(interface, algorithm, zeroRoundTrip):
 	stopTcpdump()
-	myCmd = f'python3 experiment_run_tcpdump.py {interface} {algorithm} {zeroRoundTrip}'
+	myCmd = f'python3 experiment_run_tcpdump.py {interface} {algorithm} {zeroRoundTrip} {numSamples}'
 	print(myCmd)
 	create_task('tcpdump', terminal, myCmd)
 

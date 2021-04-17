@@ -5,18 +5,20 @@ import time
 import sys
 import paramiko
 import threading
+import atexit
 
 # sudo apt-get install python3-paramiko
 
 
 global ssh_obj
-
+global closingApplication
 
 numSamples = 1000
 zeroRoundTrip = False
 droprates = [0, 10, 40]
 
 print('Number of samples', numSamples)
+
 
 # Send a command to the linux terminal
 def terminal(cmd):
@@ -79,6 +81,23 @@ def create_task(name, function, *args):
 	task.start()
 	return task
 
+# This function is ran when the script is stopped
+def on_close():
+	global closingApplication
+	closingApplication = True
+	print('Stopping active threads')
+
+	stopServerSSH(serverIP)
+	for thread in threads:
+		thread.stop()
+	stopTcpdump()
+	
+	print()
+	print('Goodbye.')
+
+atexit.register(on_close) # Make on_close() run when the script terminates
+
+
 def getTcpdumpProcessID():
 	output = terminal('ps -A | grep tcpdump')
 	output = output.strip().split(' ')
@@ -100,6 +119,11 @@ def startTcpdump(interface, algorithm, zeroRoundTrip):
 	create_task('tcpdump', terminal, myCmd)
 
 
+def startCPUlogger():
+	print('Starting CPU logger...')
+	myCmd = f'python3 experiment_log_cpu.py'
+	print(myCmd)
+	create_task('cpu logger', terminal, myCmd)
 
 
 def getServerProcessID(serverIP):
@@ -194,7 +218,8 @@ stopServerSSH(serverIP)
 stopTcpdump()
 
 numLoops = 0
-while True:
+closingApplication = False
+while not closingApplication:
 	try:
 		for algorithm in algorithms:
 			print(f'Using algorithm: "{algorithm}"')
@@ -233,9 +258,6 @@ while True:
 		numLoops += 1
 		print('Number of times through each algorithm:', numLoops)
 	except KeyboardInterrupt():
-		stopServerSSH(serverIP)
-		stopTcpdump()
-		print('Goodbye')
 		sys.exit()
 
 

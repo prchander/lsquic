@@ -60,7 +60,7 @@ def run(file):
 	except KeyboardInterrupt:
 		pass
 
-pause_until_next_minute()
+#pause_until_next_minute()
 
 fileName = 'newLogs/LOGGED_CPU_Dilithium5-aes_0RTT.csv'
 file = open(fileName, 'w+')

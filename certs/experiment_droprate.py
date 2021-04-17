@@ -6,6 +6,7 @@ import sys
 import paramiko
 import threading
 import atexit
+from getpass import getpass
 
 # sudo apt-get install python3-paramiko
 
@@ -183,16 +184,18 @@ def get_interfaces():
 lsquic_dir = os.path.expanduser('~/oqs/lsquic')
 cert = os.path.expanduser('~/oqs/lsquic/certs')
 
+client_ip = getIP()
+print(f'Client IP: {client_ip}')
+serverIP = input('Please enter the server IP: ')
+
 ssh_port = 22
-ssh_username = 'bitcoin'
-ssh_password = 'password'
+ssh_username = input('Enter server username: ')
+ssh_password = getpass('Enter server password: ')
 print('Server username:', ssh_username)
 print('Server password:', ssh_password)
 print()
 
-client_ip = getIP()
-print(f'Client IP: {client_ip}')
-serverIP = input('Please enter the server IP: ')
+
 interface = get_interfaces()
 
 print('Connecting to SSH...')
@@ -210,7 +213,7 @@ if zeroRoundTrip:
 else:
 	myCmd= f'{lsquic_dir}/build/bin/./http_client -H www.example.com -s {serverIP}:4433 -p /'
 
-
+startCPUlogger()
 
 algorithms = ['rsa', 'dilithium2', 'dilithium3', 'dilithium5', 'falcon512', 'falcon1024'] #, 'rsa3072_dilithium2', 'rsa3072_dilithium3', 'rsa3072_falcon512', 'p256_dilithium2', 'p256_dilithium3', 'p256_dilithium4', 'p256_falcon512']
 

@@ -7,8 +7,9 @@ def getIP():
 	return s.getsockname()[0]
 
 lsquic_dir = os.path.expanduser('~/oqs/lsquic')
-cert = os.path.expanduser('~/oqs/lsquic/certs')
+cert_dir = os.path.expanduser('~/oqs/lsquic/certs/rsa')
 
+print(f'Certificate Directory: {cert_dir}')
 n = 1
 
 client_ip = getIP()
@@ -17,7 +18,8 @@ print(f'Number of samples: ', n)
 serverIP = input('Please enter the server IP: ')
 
 #myCmd = f'{lsquic_dir}/build/bin/./http_client -H www.example.com -s {serverIP}:4433 -p /'
-myCmd = f'{lsquic_dir}/build/bin/./http_client -L warn -C {cert}/dilithium2/key_CA.pem -H www.example.com -s {serverIP}:4433 -p /'
+myCmd = f'{lsquic_dir}/build/bin/./http_client -L debug -C {cert_dir} -H www.example.com -s {serverIP}:4433 -p /'
+#myCmd = f'{lsquic_dir}/build/bin/./http_client -L debug -C {cert_dir}/rsa/key_CA.pem -H www.example.com -s {serverIP}:4433 -p /'
 
 
 while n>0:

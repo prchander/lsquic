@@ -1092,6 +1092,7 @@ init_x509_cert_store (const char *path)
 
     while ((ent = readdir(dir)))
     {
+        LSQ_WARN(ent->d_name);
         if (ends_in_pem(ent->d_name))
         {
             ret = snprintf(file_path, sizeof(file_path), "%s/%s",

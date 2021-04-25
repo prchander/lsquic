@@ -7,10 +7,16 @@ def getIP():
 	return s.getsockname()[0]
 
 lsquic_dir = os.path.expanduser('~/oqs/lsquic')
+key_crt_dir = f'{lsquic_dir}/certs/rsa/key_crt.pem'
+key_srv_dir = f'{lsquic_dir}/certs/rsa/key_srv.pem'
+
+print(f'Key CRT Directory: {key_crt_dir}')
+print(f'Key SRV Directory: {key_srv_dir}')
+
 server_ip = getIP()
 print()
 print(f'Server IP: {server_ip}')
 print()
 
-myCmd= f'{lsquic_dir}/build/bin/./http_server -c www.example.com,{lsquic_dir}/certs/dilithium2/key_crt.pem,{lsquic_dir}/certs/dilithium2/key_srv.pem -s {server_ip}:4433 -p /'
+myCmd= f'{lsquic_dir}/build/bin/./http_server -L debug -c www.example.com,{key_crt_dir},{key_srv_dir} -s {server_ip}:4433 -p /'
 os.system(myCmd)

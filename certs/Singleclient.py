@@ -7,7 +7,7 @@ def getIP():
 	return s.getsockname()[0]
 
 lsquic_dir = os.path.expanduser('~/oqs/lsquic')
-cert = os.path.expanduser('~/oqs/lsquic/certs/new_certs')
+cert = os.path.expanduser('~/oqs/lsquic/certs')
 
 n = 1
 

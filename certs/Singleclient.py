@@ -17,9 +17,8 @@ print(f'Client IP: {client_ip}')
 print(f'Number of samples: ', n)
 serverIP = input('Please enter the server IP: ')
 
-#myCmd = f'{lsquic_dir}/build/bin/./http_client -H www.example.com -s {serverIP}:4433 -p /'
-myCmd = f'{lsquic_dir}/build/bin/./http_client -L debug -C {cert_dir} -H www.example.com -s {serverIP}:4433 -p /'
-#myCmd = f'{lsquic_dir}/build/bin/./http_client -L debug -C {cert_dir}/rsa/key_CA.pem -H www.example.com -s {serverIP}:4433 -p /'
+#myCmd = f'{lsquic_dir}/build/bin/./http_client -L debug -C {cert_dir} -H www.example.com -s {serverIP}:4433 -p /'
+myCmd = f'{lsquic_dir}/build/bin/./http_client -C {cert_dir} -H www.example.com -s {serverIP}:4433 -p /'
 
 
 while n>0:

@@ -18,5 +18,6 @@ print()
 print(f'Server IP: {server_ip}')
 print()
 
-myCmd= f'{lsquic_dir}/build/bin/./http_server -L debug -c www.example.com,{key_crt_dir},{key_srv_dir} -s {server_ip}:4433 -p /'
+#myCmd= f'{lsquic_dir}/build/bin/./http_server -L debug -c www.example.com,{key_crt_dir},{key_srv_dir} -s {server_ip}:4433 -p /'
+myCmd= f'{lsquic_dir}/build/bin/./http_server -c www.example.com,{key_crt_dir},{key_srv_dir} -s {server_ip}:4433 -p /'
 os.system(myCmd)

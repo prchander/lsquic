@@ -1,3 +1,6 @@
+src/liblsquic/lsquic_versions_to_string.c
+
+
 build
 build/*
 !build/build.xml

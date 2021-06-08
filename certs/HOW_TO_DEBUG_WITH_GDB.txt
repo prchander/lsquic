@@ -1,0 +1,13 @@
+gdb --args ~/lsquic/build/bin/./http_client -C ~/lsquic/my_rsa_cert_directory -H www.example.com -s 10.0.2.9:4433 -p /
+
+break x509_vfy.c:526
+
+y
+
+run
+
+bt
+
+info locals
+
+quit

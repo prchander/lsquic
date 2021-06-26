@@ -1,4 +1,9 @@
-gdb --args ~/lsquic/build/bin/./http_client -C ~/lsquic/my_rsa_cert_directory -H www.example.com -s 10.0.2.9:4433 -p /
+gdb --args ~/oqs/lsquic/build/bin/./http_client -C ~/oqs/lsquic/certs/rsa -H www.example.com -s 10.0.2.9:4433 -p /
+
+
+gdb --args ~/oqs/lsquic/build/bin/./http_client -C ~/CLIENT_RSA_FILES -H www.example.com -s 10.0.2.9:4433 -p /
+
+
 
 break x509_vfy.c:526
 
@@ -10,4 +15,36 @@ bt
 
 info locals
 
+print VARIABLE_NAME
+
 quit
+
+
+
+verify_server_cert_callback
+handle_chlo_reply_verify_prof
+		lsquic_enc_session_handle_chlo_reply
+
+
+p VARNAME   Print a variable name
+stepi       Continue to next function
+s           Continue to the next line
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+START THE SERVER
+IN NEW TERMINAL:
+gdb --args ~/oqs/lsquic/build/bin/./http_client -C ~/CLIENT_RSA_FILES -H www.example.com -s 10.0.2.9:4433 -p /
+
+set logging overwrite on
+set logging on
+
+                    The file gdb.txt will be created in current directory
+break main
+run
+python while(True):
+	gdb.execute('s')
+	gdb.execute('frame')

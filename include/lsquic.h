@@ -1300,6 +1300,7 @@ struct lsquic_engine_api
     lsquic_cids_update_f                 ea_old_scids;
     void                                *ea_cids_update_ctx;
     /**
+     * // Cybersecurity Lab : Good finding : Unset pointer = no verification
      * Function to verify server certificate.  The chain contains at least
      * one element.  The first element in the chain is the server
      * certificate.  The chain belongs to the library.  If you want to

@@ -2439,6 +2439,7 @@ static int handle_chlo_reply_verify_prof(struct lsquic_enc_session *enc_session,
                 goto cleanup;
             }
         }
+        // Cybersecurity Lab : Second call to the verify function, but never called...
         ret = enc_session->enpub->enp_verify_cert(
                                 enc_session->enpub->enp_verify_ctx, chain);
         LSQ_INFO("server certificate verification %ssuccessful",

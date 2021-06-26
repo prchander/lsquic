@@ -7,6 +7,8 @@ def getIP():
 	return s.getsockname()[0]
 
 lsquic_dir = os.path.expanduser('~/oqs/lsquic')
+#key_crt_dir = os.path.expanduser('~/SERVER_RSA_FILES/key_crt.pem')
+#key_srv_dir = os.path.expanduser('~/SERVER_RSA_FILES/key_srv.pem')
 key_crt_dir = f'{lsquic_dir}/certs/rsa/key_crt.pem'
 key_srv_dir = f'{lsquic_dir}/certs/rsa/key_srv.pem'
 

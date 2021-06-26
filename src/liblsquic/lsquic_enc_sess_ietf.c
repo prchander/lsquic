@@ -910,7 +910,7 @@ iquic_esfi_create_client (const char *hostname,
         SSL_CTX_set_session_cache_mode(ssl_ctx, SSL_SESS_CACHE_CLIENT);
         if (enc_sess->esi_enpub->enp_stream_if->on_sess_resume_info)
             SSL_CTX_sess_set_new_cb(ssl_ctx, iquic_new_session_cb);
-        if (enc_sess->esi_enpub->enp_verify_cert
+        if (enc_sess->esi_enpub->enp_verify_cert // Cybersecurity Lab : IF STATEMENT function that shows verify is never called
                 || LSQ_LOG_ENABLED_EXT(LSQ_LOG_DEBUG, LSQLM_EVENT)
                 || LSQ_LOG_ENABLED_EXT(LSQ_LOG_DEBUG, LSQLM_QLOG))
             SSL_CTX_set_custom_verify(ssl_ctx, SSL_VERIFY_PEER,
@@ -1246,6 +1246,7 @@ free_handshake_keys (struct enc_sess_iquic *enc_sess)
 static enum ssl_verify_result_t
 verify_server_cert_callback (SSL *ssl, uint8_t *out_alert)
 {
+    // return ssl_verify_invalid; // Cybersecurity Lab : Auto-invalid test
     struct enc_sess_iquic *enc_sess;
     struct stack_st_X509 *chain;
     int s;
@@ -1261,6 +1262,7 @@ verify_server_cert_callback (SSL *ssl, uint8_t *out_alert)
     EV_LOG_CERT_CHAIN(LSQUIC_LOG_CONN_ID, chain);
     if (enc_sess->esi_enpub->enp_verify_cert)
     {
+        // Cybersecurity Lab : First call to the verify function, but never called...
         s = enc_sess->esi_enpub->enp_verify_cert(
                                     enc_sess->esi_enpub->enp_verify_ctx, chain);
         return s == 0 ? ssl_verify_ok : ssl_verify_invalid;
@@ -1901,7 +1903,7 @@ iquic_esfi_handshake (struct enc_sess_iquic *enc_sess)
     enum lsquic_hsk_status hsk_status;
     char errbuf[ERR_ERROR_STRING_BUF_LEN];
 
-    s = SSL_do_handshake(enc_sess->esi_ssl);
+    s = SSL_do_handshake(enc_sess->esi_ssl); // Cybersecurity Lab : First call to BoringSSL
     if (s <= 0)
     {
         err = SSL_get_error(enc_sess->esi_ssl, s);

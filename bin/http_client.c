@@ -269,7 +269,7 @@ create_connections (struct http_client_ctx *client_ctx)
 
     while (client_ctx->hcc_n_open_conns < client_ctx->hcc_concurrency &&
            client_ctx->hcc_total_n_reqs > 0)
-        if (0 != prog_connect(client_ctx->prog, len ? sess_resume : NULL, len))
+        if (0 != prog_connect(client_ctx->prog, len ? sess_resume : NULL, len)) // Cybersecurity Lab : Actual function to call boringssl
         {
             LSQ_ERROR("connection failed");
             exit(EXIT_FAILURE);
@@ -1054,6 +1054,7 @@ ends_in_pem (const char *s)
 static X509 *
 file2cert (const char *path)
 {
+
     X509 *cert = NULL;
     BIO *in;
 
@@ -1092,7 +1093,7 @@ init_x509_cert_store (const char *path)
 
     while ((ent = readdir(dir)))
     {
-        LSQ_WARN(ent->d_name);
+        //LSQ_WARN(ent->d_name);
         if (ends_in_pem(ent->d_name))
         {
             ret = snprintf(file_path, sizeof(file_path), "%s/%s",
@@ -1107,7 +1108,7 @@ init_x509_cert_store (const char *path)
                 LSQ_WARN("file_path was truncated %s", strerror(errno));
                 continue;
             }
-            cert = file2cert(file_path);
+            cert = file2cert(file_path); // Cybersecurity Lab ********
             if (cert)
             {
                 if (1 != X509_STORE_add_cert(store, cert))
@@ -1125,15 +1126,15 @@ init_x509_cert_store (const char *path)
 static int
 verify_server_cert (void *ctx, STACK_OF(X509) *chain)
 {
-    LSQ_DEBUG("!!! TESTING: verify_server_cert called");
+    //LSQ_DEBUG("!!! TESTING: verify_server_cert called");
     X509_STORE_CTX store_ctx;
     X509 *cert;
     int ver;
 
-    if (!store)
-    {
-        if (0 != init_x509_cert_store(ctx))
-            return -1;
+    // Cybersecuriy lab : Force certificate fetching by considering removing the if statement
+    if (!store) {
+    if (0 != init_x509_cert_store(ctx))
+        return -1;
     }
 
     cert = sk_X509_shift(chain);

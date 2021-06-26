@@ -45,6 +45,4 @@ set logging on
                     The file gdb.txt will be created in current directory
 break main
 run
-python while(True):
-	gdb.execute('s')
-	gdb.execute('frame')
+python while(True): gdb.execute('s') ; gdb.execute('frame')

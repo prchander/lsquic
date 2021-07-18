@@ -19,6 +19,7 @@ BORINGSSL_DIR=$PWD/boringssl
 #Build liboqs
 #------------
 
+sudo apt install -y astyle cmake gcc ninja-build libssl-dev python3-pytest python3-pytest-xdist unzip xsltproc doxygen graphviz
 git clone https://github.com/open-quantum-safe/liboqs.git
 cd liboqs
 

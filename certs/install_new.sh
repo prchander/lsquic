@@ -33,6 +33,7 @@ sudo ninja install
 #Build OQS BoringSSL
 #-------------------
 
+sudo apt install -y cmake gcc ninja-build libunwind-dev pkg-config python3 python3-psutil
 cd $BORINGSSL_DIR
 rm -rf build
 mkdir build && cd build

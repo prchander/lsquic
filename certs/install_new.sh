@@ -11,8 +11,8 @@ cd ~
 rm -rf oqs
 mkdir oqs && cd oqs
 
-#git clone https://github.com/prchander/boringssl.git
-git clone https://github.com/open-quantum-safe/boringssl.git
+git clone https://github.com/prchander/boringssl.git
+#git clone https://github.com/open-quantum-safe/boringssl.git
 
 
 BORINGSSL_DIR=$PWD/boringssl

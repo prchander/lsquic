@@ -145,7 +145,7 @@ def stopServerSSH(serverIP):
 def restartServerSSH(algorithm, serverIP):
 	stopServerSSH(serverIP)
 	print('Starting server...')
-	output = call_ssh(f'python3 ~/oqs/lsquic/certs/experiment_droprate_client.py {algorithm} </dev/null &>/dev/null &')
+	output = call_ssh(f'python3 ~/oqs/lsquic/certs/experiment_droprate_server.py {algorithm} </dev/null &>/dev/null &')
 	print()
 	print('Server started! Waiting 5 seconds to be certain...')
 	time.sleep(5)
